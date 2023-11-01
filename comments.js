@@ -1,54 +1,26 @@
-//create web server
-const express = require("express");
-const app = express();
+//Create a web server
+var express = require('express');
+var app = express();
+var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
+var Comment = require('./model/comments');
+var cors = require('cors');
+var port = 3000;
+var router = express.Router();
 
-//import mongoose
-const mongoose = require("mongoose");
-
-//import body-parser
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cors());
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-//import cors
-const cors = require("cors");
-app.use(cors());
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/mean-angular5', { useNewUrlParser: true });
 
-//import model
-const commentModel = require("./models/Comment");
+// Added check for DB connection
+if(!mongoose.connection){
+    console.log("Error connecting db");
+}
+else{
+    console.log("Db connected successfully");
+}
 
-//connect to database
-mongoose
-  .connect("mongodb://localhost:27017/comments", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("database connected"))
-  .catch((err) => console.log(`error connecting to database ${err}`));
-
-//create routes
-app.post("/comment", (req, res) => {
-  const comment = new commentModel({
-    name: req.body.name,
-    comment: req.body.comment,
-  });
-  comment
-    .save()
-    .then((result) => {
-      res.json(result);
-    })
-    .catch((err) => console.log(`error saving to database ${err}`));
-});
-
-app.get("/comments", (req, res) => {
-  commentModel
-    .find()
-    .then((result) => {
-      res.json(result);
-    })
-    .catch((err) => console.log(`error fetching from database ${err}`));
-});
-
-//create port
-const port = 5000;
-app.listen(port, () => console.log(`server running on port ${port}`));
+//
