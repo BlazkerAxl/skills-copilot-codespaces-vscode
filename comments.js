@@ -1,35 +1,54 @@
 //create web server
-//create web server
 const express = require("express");
 const app = express();
-//import the database connection
-const db = require("./db");
 
-//import the model
-const Comment = require("./models/comment");
+//import mongoose
+const mongoose = require("mongoose");
 
-//import the router
-const router = require("./routes/comments");
+//import body-parser
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-//import the cors library
+//import cors
 const cors = require("cors");
-
-//configure cors
 app.use(cors());
 
-//configure express to use json
-app.use(express.json());
+//import model
+const commentModel = require("./models/Comment");
 
-//use the router
-app.use("/comments", router);
+//connect to database
+mongoose
+  .connect("mongodb://localhost:27017/comments", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("database connected"))
+  .catch((err) => console.log(`error connecting to database ${err}`));
 
-//create the home route
-app.get("/", (req, res) => {
-    res.send("Welcome to the comments API!");
+//create routes
+app.post("/comment", (req, res) => {
+  const comment = new commentModel({
+    name: req.body.name,
+    comment: req.body.comment,
+  });
+  comment
+    .save()
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((err) => console.log(`error saving to database ${err}`));
 });
 
-//configure port number
-const port = process.env.PORT || 3000;
+app.get("/comments", (req, res) => {
+  commentModel
+    .find()
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((err) => console.log(`error fetching from database ${err}`));
+});
 
-//create the server
-app.listen(port, () => console.log(`Listening on port ${port}...`));
+//create port
+const port = 5000;
+app.listen(port, () => console.log(`server running on port ${port}`));
