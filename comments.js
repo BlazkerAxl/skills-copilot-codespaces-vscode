@@ -1,26 +1,64 @@
 //Create a web server
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
-var Comment = require('./model/comments');
-var cors = require('cors');
-var port = 3000;
-var router = express.Router();
+const express = require('express');
+const app = express();
+const port = 3000;
 
-app.use(cors());
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
+// Use the express.static built-in middleware function to serve static files
+app.use(express.static('public'));
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/mean-angular5', { useNewUrlParser: true });
+// Use the express.urlencoded() built-in middleware function to parse urlencoded bodies
+app.use(express.urlencoded({ extended: true }));
 
-// Added check for DB connection
-if(!mongoose.connection){
-    console.log("Error connecting db");
-}
-else{
-    console.log("Db connected successfully");
-}
+// Use the express.json() built-in middleware function to parse json bodies
+app.use(express.json());
 
-//
+// Use the express.text() built-in middleware function to parse text bodies
+app.use(express.text());
+
+// Use the express.raw() built-in middleware function to parse raw bodies
+app.use(express.raw());
+
+// Use the express.static() built-in middleware function to serve static files
+app.use(express.static('public'));
+
+// Use the express.Router() class to create modular, mountable route handlers
+const router = express.Router();
+
+// Use the router.use() function to load middleware functions
+router.use(function timeLog(req, res, next) {
+    console.log('Time: ', Date.now());
+    next();
+});
+
+// Use the router.get() function to handle GET requests
+router.get('/', function(req, res) {
+    res.send('GET request to the homepage');
+});
+
+// Use the router.post() function to handle POST requests
+router.post('/', function(req, res) {
+    res.send('POST request to the homepage');
+});
+
+// Use the router.put() function to handle PUT requests
+router.put('/', function(req, res) {
+    res.send('PUT request to the homepage');
+});
+
+// Use the router.delete() function to handle DELETE requests
+router.delete('/', function(req, res) {
+    res.send('DELETE request to the homepage');
+});
+
+// Use the router.all() function to handle all HTTP methods and requests
+router.all('/', function(req, res) {
+    res.send('HTTP methods and requests');
+});
+
+// Use the router.param() function to handle parameters
+router.param('id', function(req, res, next, id) {
+    console.log('CALLED ONLY ONCE');
+    next();
+});
+
+// Use the router.route() function to handle multiple routes
